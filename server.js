@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-app.post("/api/referrals", async (req, res) => {
+app.post("/", async (req, res) => {
   const { yourName, yourEmail, friendName, friendEmail } = req.body;
 
   try {
