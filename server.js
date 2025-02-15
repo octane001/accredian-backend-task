@@ -13,7 +13,9 @@ app.use(cors());
 app.use(json());
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // Use SSL
   auth: {
     user: process.env.USER_MAIL,
     pass: process.env.LESS_SECURE_PASS,
