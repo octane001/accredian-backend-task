@@ -22,7 +22,6 @@ const transporter = nodemailer.createTransport({
 
 app.post("/api/referrals", async (req, res) => {
   const { yourName, yourEmail, friendName, friendEmail } = req.body;
-  console.log(req.body);
 
   try {
     // Save the data coming from Frontend to Data Base
