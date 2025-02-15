@@ -23,7 +23,6 @@ const transporter = nodemailer.createTransport({
 
 app.post("/api/referrals", async (req, res) => {
   const { yourName, yourEmail, friendName, friendEmail } = req.body;
-  console.log(req.body);
 
   try {
     const newReferral = await prisma.referral.create({
