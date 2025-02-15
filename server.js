@@ -3,9 +3,10 @@ import cors from "cors";
 import pkg from "body-parser";
 import { PrismaClient } from "@prisma/client";
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
+dotenv.config(); // Load environment variables
 const { json } = pkg;
-
 const prisma = new PrismaClient();
 const app = express();
 
@@ -16,7 +17,7 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.USER_MAIL,
-    pass: process.env.LESS_SECURE_PASS,
+    pass: process.env.LESS_SECURE_PASS, // Use App Passwords instead
   },
 });
 
@@ -25,39 +26,37 @@ app.post("/api/referrals", async (req, res) => {
   console.log(req.body);
 
   try {
-    // Save the data coming from Frontend to Data Base
     const newReferral = await prisma.referral.create({
-      data: {
-        yourName,
-        yourEmail,
-        friendName,
-        friendEmail,
-      },
+      data: { yourName, yourEmail, friendName, friendEmail },
     });
 
     const mailOptions = {
-  from: process.env.USER_MAIL,
-  to: friendEmail,
-  subject: `${yourName} has invited you to join Accredian! 🎉`,
-  text: `Hi ${friendName},\n\nYour friend ${yourName} thinks you’ll love Accredian and has referred you to join our learning community! 🎓 Discover a world of knowledge, enhance your skills, and start your learning journey today.\n\nReady to get started? Just click the link below:\n🔗 [Join Accredian Now](https://accredian.com/)\n\nDon’t miss this chance to upskill and grow!\n\nHappy learning,\nThe Accredian Team`
-};
-
+      from: process.env.USER_MAIL,
+      to: friendEmail,
+      subject: `${yourName} has invited you to join Accredian! 🎉`,
+      html: `<p>Hi ${friendName},</p>
+             <p>Your friend ${yourName} thinks you’ll love Accredian and has referred you to join our learning community! 🎓</p>
+             <p>Ready to get started? <a href="https://accredian.com/">Join Accredian Now</a></p>
+             <p>Happy learning,</p><p>The Accredian Team</p>`,
+    };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log("Error sending email:", error);
-      } else {
-        console.log("Email sent successfully:", info.response);
+        return res.status(500).json({ error: "Failed to send email." });
       }
+      console.log("Email sent successfully:", info.response);
+      res.status(201).json({ message: "Referral saved and email sent!", newReferral });
     });
-
-    res
-      .status(201)
-      .json({ message: "Referral saved successfully!", newReferral });
   } catch (error) {
     console.error("Error saving referral:", error);
     res.status(500).json({ error: "Failed to save referral." });
   }
+});
+
+process.on("SIGINT", async () => {
+  await prisma.$disconnect();
+  process.exit(0);
 });
 
 app.listen(5000, () => {
