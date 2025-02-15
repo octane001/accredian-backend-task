@@ -13,9 +13,7 @@ app.use(cors());
 app.use(json());
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // Use SSL
+  service: "gmail",
   auth: {
     user: process.env.USER_MAIL,
     pass: process.env.LESS_SECURE_PASS,
@@ -24,6 +22,7 @@ const transporter = nodemailer.createTransport({
 
 app.post("/api/referrals", async (req, res) => {
   const { yourName, yourEmail, friendName, friendEmail } = req.body;
+  console.log(req.body);
 
   try {
     // Save the data coming from Frontend to Data Base
@@ -37,12 +36,12 @@ app.post("/api/referrals", async (req, res) => {
     });
 
     const mailOptions = {
-      from: process.env.USER_MAIL,
-      to: friendEmail,
-      subject: `${yourName} has invited you to join Accredian! 🎉`,
-      text: `Hi ${friendName},\n\nYour friend ${yourName} thinks you’ll love Accredian and has referred you to join our learning community! 🎓 Discover a world of knowledge, enhance your skills, and start your learning journey today.\n\nReady to get started? Just click the link below:\n🔗 [Join Accredian Now](https://accredian.com/)\n\nDon’t miss this chance to upskill and grow!\n\nHappy learning,\nThe Accredian Team`
-    };
-    
+  from: process.env.USER_MAIL,
+  to: friendEmail,
+  subject: `${yourName} has invited you to join Accredian! 🎉`,
+  text: `Hi ${friendName},\n\nYour friend ${yourName} thinks you’ll love Accredian and has referred you to join our learning community! 🎓 Discover a world of knowledge, enhance your skills, and start your learning journey today.\n\nReady to get started? Just click the link below:\n🔗 [Join Accredian Now](https://accredian.com/)\n\nDon’t miss this chance to upskill and grow!\n\nHappy learning,\nThe Accredian Team`
+};
+
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
